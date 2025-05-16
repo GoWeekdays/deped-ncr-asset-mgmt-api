@@ -1,5 +1,5 @@
 {
-  "name": "authorization-api",
+  "name": "deped-ncr-asset-mgmt-api",
   "version": "1.0.0",
   "main": "server.js",
   "license": "MIT",
@@ -47,5 +47,6 @@
     "prettier": "^3.0.3",
     "supertest": "^6.3.3",
     "ts-node": "^10.9.1"
-  }
+  },
+ "packageManager": "yarn@1.22.22"
 }
