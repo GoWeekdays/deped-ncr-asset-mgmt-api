@@ -38,7 +38,7 @@ export default function useFileService() {
 
     try {
       await s3.uploadObject({
-        key: `/deped-ncr/ams${id}`,
+        key: `deped-ncr/ams${id}`,
         body: value.buffer,
         contentType: value.mimetype,
       });
