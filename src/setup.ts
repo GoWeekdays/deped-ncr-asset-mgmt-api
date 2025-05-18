@@ -125,8 +125,76 @@ const initializeCounters = async () => {
   }
 };
 
+import { useUserService } from "./services/user.service";
+import {
+  DEFAULT_USER_PASSWORD,
+  DEFAULT_USER_FIRST_NAME,
+  DEFAULT_ADMIN_HEAD_USER_EMAIL,
+  DEFAULT_ADMIN_USER_EMAIL,
+  DEFAULT_OFFICE_CHIEF_USER_EMAIL,
+  DEFAULT_PERSONNEL_USER_EMAIL,
+} from "./config";
+import { useUserRepo } from "./repositories/user.repository";
+import { useOTPRepo } from "./repositories/otp.repository";
+import { useTokenRepo } from "./repositories/token.repository";
+
 export default async () => {
   await initRedisClient();
+
+  const userTypes = [
+    { type: "admin-head", email: DEFAULT_ADMIN_HEAD_USER_EMAIL },
+    { type: "admin", email: DEFAULT_ADMIN_USER_EMAIL },
+    { type: "office-chief", email: DEFAULT_OFFICE_CHIEF_USER_EMAIL },
+    { type: "personnel", email: DEFAULT_PERSONNEL_USER_EMAIL },
+  ];
+
+  try {
+    for (const { type, email } of userTypes) {
+      // Convert userType to start with a capital letter and remove hyphen
+      const formattedUserType = type
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+
+      const result = await useUserService().createUser({
+        password: DEFAULT_USER_PASSWORD,
+        email,
+        firstName: DEFAULT_USER_FIRST_NAME,
+        lastName: formattedUserType,
+        type, // values: admin-head, admin, office-chief, personnel
+        designation: `${formattedUserType} Designation`,
+      });
+
+      if (result) {
+        logger.log({
+          level: "info",
+          message: `User created successfully: ${result}`,
+        });
+      } else {
+        logger.log({
+          level: "info",
+          message: `User creation failed: ${result}`,
+        });
+      }
+    }
+  } catch (error) {
+    logger.log({
+      level: "error",
+      message: `Error creating default admin user: ${error}`,
+    });
+  }
+
+  const _repositories: Repository[] = [
+    { name: "User", repo: useUserRepo() },
+    { name: "OTP", repo: useOTPRepo() },
+    { name: "Token", repo: useTokenRepo() },
+  ];
+
+  try {
+    await processRepositories(_repositories);
+  } catch (error: any) {
+    logger.log({ level: "error", message: `Initialization failed: ${error.message}` });
+  }
 
   const { deleteDraft } = useFileService();
 
