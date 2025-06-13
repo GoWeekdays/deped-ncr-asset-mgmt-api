@@ -138,6 +138,11 @@ export default function useAssetController() {
 
     try {
       const assets = await _getAssets({ page, limit, sort, search, type, role: _user.role });
+      console.log({
+        params: { page, limit, sort, search, type, role: _user.role },
+        assets,
+      });
+
       return res.json(assets);
     } catch (error) {
       logger.log({ level: "error", message: `${error}` });
