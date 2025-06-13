@@ -62,16 +62,14 @@ export function useAuthService() {
   async function refreshToken(token: string) {
     try {
       // Verify refresh token
-      const decoded = jwt.verify(token, REFRESH_TOKEN_SECRET) as { user: string, type: string };
-
-      console.log("Decoded refresh token:", decoded);
+      const decoded = jwt.verify(token, REFRESH_TOKEN_SECRET) as { user: string, role: string };
       
 
       // Validate token existence
       const tokenData = await getToken(token);
       if (!tokenData) throw new NotFoundError("Invalid token.");
 
-      return generateToken({ secret: ACCESS_TOKEN_SECRET, metadata: { user: decoded.user, type: decoded.type }, options: { expiresIn: ACCESS_TOKEN_EXPIRY } });
+      return generateToken({ secret: ACCESS_TOKEN_SECRET, metadata: { user: decoded.user, role: decoded.role }, options: { expiresIn: ACCESS_TOKEN_EXPIRY } });
     } catch (error) {
       logger.log({ level: "error", message: `${error}` });
       throw error;
