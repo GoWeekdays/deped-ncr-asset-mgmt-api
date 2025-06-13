@@ -64,6 +64,9 @@ export function useAuthService() {
       // Verify refresh token
       const decoded = jwt.verify(token, REFRESH_TOKEN_SECRET) as { user: string, type: string };
 
+      console.log("Decoded refresh token:", decoded);
+      
+
       // Validate token existence
       const tokenData = await getToken(token);
       if (!tokenData) throw new NotFoundError("Invalid token.");
