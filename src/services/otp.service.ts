@@ -96,7 +96,7 @@ export function useOTPService() {
   }) {
     const user = await getUserByEmail(email);
     if (user) {
-      return `User already exists: ${email}.`;
+      throw new BadRequestError("User with this email already exists.");
     }
 
     const formattedUserType = userType
