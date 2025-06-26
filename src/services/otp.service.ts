@@ -94,7 +94,8 @@ export function useOTPService() {
     officeId?: string;
     divisionId?: string;
   }) {
-    if (await getUserByEmail(email)) {
+    const user = await getUserByEmail(email);
+    if (user) {
       return `User already exists: ${email}.`;
     }
 
