@@ -222,11 +222,7 @@ export default function useIssueSlipService() {
       for (let i = 0; i < quantity; i++) {
         const itemNo = totalIssued + i + 1;
 
-        // Only check for serialNo if it is provided
-        let serialNumber = null;
-        if (serialNo && serialNo[i]) {
-          serialNumber = serialNo[i];
-        }
+        const serialNumber = Array.isArray(serialNo) && i < serialNo.length ? serialNo[i] : "";
 
         currentBalance--;
 
@@ -234,7 +230,7 @@ export default function useIssueSlipService() {
           {
             assetId,
             reference: issueSlipNo,
-            serialNo: serialNumber ?? "",
+            serialNo: serialNumber,
             officeId: _receivedBy?.officeId ?? "",
             outs: 1,
             balance: currentBalance,
