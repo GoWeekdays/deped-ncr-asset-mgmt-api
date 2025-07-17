@@ -92,9 +92,7 @@ export default function useIssueSlipService() {
           return "SPLV";
         }
       } else if (type === "PPE") {
-        if (cost >= 50001) {
-          return "PAR";
-        }
+        return "PAR";
       }
       return "";
     }
