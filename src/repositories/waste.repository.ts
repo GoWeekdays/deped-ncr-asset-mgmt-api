@@ -98,12 +98,23 @@ export default function useWasteRepository() {
         transferredWithoutCostCount: 1,
         destroyedCount: 1,
         transferredTo: {
-          $cond: {
-            if: {
-              $gt: [{ $size: { $filter: { input: "$itemStocks", as: "item", cond: { $eq: ["$$item.type", "transferred-without-cost"] } } } }, 0],
+          $let: {
+            vars: {
+              filtered: {
+                $filter: {
+                  input: "$itemStocks",
+                  as: "item",
+                  cond: { $eq: ["$$item.type", "transferred-without-cost"] },
+                },
+              },
             },
-            then: { $first: "$itemStocks.transferredTo" },
-            else: "",
+            in: {
+              $cond: {
+                if: { $gt: [{ $size: "$$filtered" }, 0] },
+                then: { $arrayElemAt: ["$$filtered.transferredTo", 0] },
+                else: "",
+              },
+            },
           },
         },
       };
@@ -206,9 +217,7 @@ export default function useWasteRepository() {
                   remarks: "$$wasteRemarks",
                   transferredTo: {
                     $cond: {
-                      if: {
-                        $eq: ["$$wasteType", "transferred-without-cost"],
-                      },
+                      if: { $eq: ["$$wasteType", "transferred-without-cost"] },
                       then: "$$transferredTo",
                       else: "",
                     },
