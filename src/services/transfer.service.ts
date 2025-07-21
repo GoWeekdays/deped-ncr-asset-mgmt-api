@@ -264,10 +264,17 @@ export default function useTransferService() {
       const transferItemNo = totalOuts + 1;
       let itemNo = stock.itemNo;
       let qty = 1;
+      let balanceForItem = currentBalance;
 
       if (stock.condition === "good-condition") {
         itemNo = transferItemNo.toString();
-        currentBalance = currentBalance - qty;
+        // For good-condition stocks, deduct from current balance
+        balanceForItem = currentBalance - qty;
+        currentBalance = balanceForItem; // Update the balance for subsequent items
+      } else {
+        // For reissued stocks, use current balance but don't deduct
+        // since it was already deducted when first issued
+        balanceForItem = currentBalance;
       }
 
       items.push({
@@ -275,7 +282,7 @@ export default function useTransferService() {
         reference: stock.reference || "",
         serialNo: stock.serialNo || "",
         qty,
-        balance: currentBalance,
+        balance: balanceForItem,
         itemNo,
         initialCondition: stock.condition || "",
         condition: "transferred",
