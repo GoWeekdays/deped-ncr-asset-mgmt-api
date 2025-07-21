@@ -18,7 +18,7 @@ export default function useTransferService() {
     getTransferById: _getTransferById,
     updateTransferById: _updateTransferById,
   } = useTransferRepository();
-  const { getAssetById } = useAssetRepository();
+  const { getAssetById, updateAssetQtyById } = useAssetRepository();
   const { incrementCounterByType } = useCounterRepository();
   const { getUserById } = useUserRepo();
   const { getStockById } = useStockRepository();
@@ -236,7 +236,7 @@ export default function useTransferService() {
     condition?: string;
   };
 
-  async function fetchBatchItems(transfer: TTransfer): Promise<TBatchItem[]> {
+  async function fetchBatchItems(transfer: TTransfer, session?: ClientSession): Promise<TBatchItem[]> {
     return Promise.all(
       transfer.itemStocks.map(async ({ stockId }) => {
         const stock = await getStockById(stockId.toString());
@@ -255,6 +255,8 @@ export default function useTransferService() {
         if (stock.condition === "good-condition") {
           itemNo = transferItemNo.toString();
           currentBalance = currentBalance - qty;
+
+          await updateAssetQtyById({ _id: asset._id.toString(), qty: currentBalance }, session);
         }
 
         return {
@@ -280,7 +282,7 @@ export default function useTransferService() {
       const transfer = await _getTransferById({ _id });
       if (!transfer) throw new NotFoundError("Transfer not found.");
 
-      const batchItems = await fetchBatchItems(transfer);
+      const batchItems = await fetchBatchItems(transfer, session);
 
       await updateTransferById(_id, value, session);
       await issueStockByBatch({ officeName: transfer.to, items: batchItems }, session);
