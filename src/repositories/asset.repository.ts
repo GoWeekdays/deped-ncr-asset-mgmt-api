@@ -171,6 +171,7 @@ export default function useAssetRepository() {
                 itemNo: {
                   $not: /-/,
                 },
+                condition: { $ne: "returned" },
                 $expr: {
                   $eq: ["$assetId", "$$assetId"],
                 },
@@ -179,7 +180,7 @@ export default function useAssetRepository() {
             {
               $group: {
                 _id: {
-                  assetId: new ObjectId("685cba86bd3549cbffd262c5"),
+                  assetId: "$assetId",
                   itemNo: "$itemNo",
                 },
                 latestCondition: {
