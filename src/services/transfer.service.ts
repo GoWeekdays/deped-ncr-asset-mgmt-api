@@ -234,43 +234,55 @@ export default function useTransferService() {
     itemNo?: string;
     initialCondition?: string;
     condition?: string;
+    balance: number;
   };
 
   async function fetchBatchItems(transfer: TTransfer, session?: ClientSession): Promise<TBatchItem[]> {
-    return Promise.all(
-      transfer.itemStocks.map(async ({ stockId }) => {
-        const stock = await getStockById(stockId.toString());
-        if (!stock) throw new NotFoundError(`Stock ID ${stockId} not found.`);
+    const items: Array<TBatchItem> = [];
 
-        const asset = await getAssetById(stock.assetId.toString());
-        if (!asset || !asset._id) throw new NotFoundError(`Asset ID ${stock.assetId} not found.`);
+    for (let index = 0; index < transfer.itemStocks.length; index++) {
+      const _stock = transfer.itemStocks[index];
+      const stockId = _stock.stockId;
 
-        let currentBalance = asset.quantity || 0;
-        const initialQty = asset.initialQty || currentBalance;
-        const totalOuts = Math.max(0, initialQty - currentBalance);
-        const transferItemNo = totalOuts + 1;
-        let itemNo = stock.itemNo;
-        let qty = 1;
+      const stock = await getStockById(stockId.toString());
+      if (!stock) throw new NotFoundError(`Stock ID ${stockId} not found.`);
 
-        if (stock.condition === "good-condition") {
-          itemNo = transferItemNo.toString();
-          currentBalance = currentBalance - qty;
+      const asset = await getAssetById(stock.assetId.toString());
+      if (!asset) throw new NotFoundError(`Asset ID ${stock.assetId} not found.`);
+      if (!asset._id) throw new BadRequestError("Asset ID is required.");
 
-          await updateAssetQtyById({ _id: asset._id.toString(), qty: currentBalance }, session);
-        }
+      const item = items.find((i) => i.id.toString() === String(asset._id));
 
-        return {
-          id: asset._id.toString(),
-          reference: stock.reference || "",
-          serialNo: stock.serialNo || "",
-          qty,
-          balance: currentBalance,
-          itemNo,
-          initialCondition: stock.condition || "",
-          condition: "transferred",
-        };
-      }),
-    );
+      let currentBalance = asset.quantity || 0;
+
+      if (item) {
+        currentBalance = item.balance;
+      }
+
+      const initialQty = asset.initialQty || currentBalance;
+      const totalOuts = Math.max(0, initialQty - currentBalance);
+      const transferItemNo = totalOuts + 1;
+      let itemNo = stock.itemNo;
+      let qty = 1;
+
+      if (stock.condition === "good-condition") {
+        itemNo = transferItemNo.toString();
+        currentBalance = currentBalance - qty;
+      }
+
+      items.push({
+        id: asset._id.toString(),
+        reference: stock.reference || "",
+        serialNo: stock.serialNo || "",
+        qty,
+        balance: currentBalance,
+        itemNo,
+        initialCondition: stock.condition || "",
+        condition: "transferred",
+      });
+    }
+
+    return items;
   }
 
   async function updateStatusToCompleted(_id: string, value: TTransfer) {
