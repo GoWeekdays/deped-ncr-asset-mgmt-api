@@ -160,12 +160,51 @@ export default function useAssetRepository() {
         },
       },
       {
+        $lookup: {
+          from: "stocks",
+          let: {
+            assetId: "$_id",
+          },
+          pipeline: [
+            {
+              $match: {
+                itemNo: {
+                  $not: /-/,
+                },
+                $expr: {
+                  $eq: ["$assetId", "$$assetId"],
+                },
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  assetId: new ObjectId("685cba86bd3549cbffd262c5"),
+                  itemNo: "$itemNo",
+                },
+                latestCondition: {
+                  $first: "$condition",
+                },
+              },
+            },
+          ],
+          as: "totalDeductedStocks",
+        },
+      },
+      {
+        $addFields: {
+          totalDeductedStocks: {
+            $size: "$totalDeductedStocks",
+          },
+        },
+      },
+      {
         $addFields: {
           goodCondition: {
             $subtract: [
-              "$quantity",
+              "$initialQty",
               {
-                $add: [{ $ifNull: ["$stockSummary.returnedCount", 0] }, { $ifNull: [{ $arrayElemAt: ["$stockConditions.transferred", 0] }, 0] }],
+                $ifNull: ["$totalDeductedStocks", 0],
               },
             ],
           },
