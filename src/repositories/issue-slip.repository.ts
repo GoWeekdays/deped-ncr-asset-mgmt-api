@@ -215,6 +215,7 @@ export default function useIssueSlipRepository() {
       entityName: 1,
       fundCluster: 1,
       issueSlipNo: 1,
+      serialNo: 1,
       quantity: 1,
       assetId: 1,
       unitOfMeasurement: "$asset.unitOfMeasurement",
