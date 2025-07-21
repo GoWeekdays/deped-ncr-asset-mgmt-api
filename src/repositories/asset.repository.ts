@@ -161,7 +161,14 @@ export default function useAssetRepository() {
       },
       {
         $addFields: {
-          goodCondition: { $subtract: ["$quantity", { $ifNull: ["$stockSummary.returnedCount", 0] }] },
+          goodCondition: {
+            $subtract: [
+              "$quantity",
+              {
+                $add: [{ $ifNull: ["$stockSummary.returnedCount", 0] }, { $ifNull: [{ $arrayElemAt: ["$stockConditions.transferred", 0] }, 0] }],
+              },
+            ],
+          },
           reissued: { $arrayElemAt: ["$stockConditions.reissued", 0] },
           transferred: { $arrayElemAt: ["$stockConditions.transferred", 0] },
           returned: { $arrayElemAt: ["$stockConditions.returned", 0] },
