@@ -255,6 +255,8 @@ export default function useTransferService() {
 
       let currentBalance = asset.quantity || 0;
 
+      console.log("item:", item);
+
       if (item) {
         currentBalance = item.balance;
       }
@@ -277,7 +279,7 @@ export default function useTransferService() {
         balanceForItem = currentBalance;
       }
 
-      items.push({
+      const data: TBatchItem = {
         id: asset._id.toString(),
         reference: stock.reference || "",
         serialNo: stock.serialNo || "",
@@ -286,7 +288,11 @@ export default function useTransferService() {
         itemNo,
         initialCondition: stock.condition || "",
         condition: "transferred",
-      });
+      };
+
+      console.log(`Batch Item ${index + 1}:`, data);
+
+      items.push(data);
     }
 
     return items;
