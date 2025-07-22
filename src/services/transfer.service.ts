@@ -239,6 +239,7 @@ export default function useTransferService() {
 
   async function fetchBatchItems(transfer: TTransfer, session?: ClientSession): Promise<TBatchItem[]> {
     const items: Array<TBatchItem> = [];
+    const assetBalanceMap = new Map<string, number>(); // Track running balance per asset
 
     for (let index = 0; index < transfer.itemStocks.length; index++) {
       const _stock = transfer.itemStocks[index];
@@ -251,36 +252,39 @@ export default function useTransferService() {
       if (!asset) throw new NotFoundError(`Asset ID ${stock.assetId} not found.`);
       if (!asset._id) throw new BadRequestError("Asset ID is required.");
 
-      const item = items.find((i) => i.id.toString() === String(asset._id));
-
+      const assetId = asset._id.toString();
       let currentBalance = asset.quantity || 0;
 
-      console.log("item:", item);
-
-      if (item) {
-        currentBalance = item.balance;
+      // Use tracked balance if we've processed this asset before
+      if (assetBalanceMap.has(assetId)) {
+        currentBalance = assetBalanceMap.get(assetId)!;
       }
 
-      const initialQty = asset.initialQty || currentBalance;
+      const initialQty = asset.initialQty || (asset.quantity || 0);
       const totalOuts = Math.max(0, initialQty - currentBalance);
       const transferItemNo = totalOuts + 1;
       let itemNo = stock.itemNo;
       let qty = 1;
       let balanceForItem = currentBalance;
+      let newRunningBalance = currentBalance;
 
       if (stock.condition === "good-condition") {
         itemNo = transferItemNo.toString();
         // For good-condition stocks, deduct from current balance
         balanceForItem = currentBalance - qty;
-        currentBalance = balanceForItem; // Update the balance for subsequent items
+        newRunningBalance = balanceForItem; // Update running balance for subsequent items
       } else {
         // For reissued stocks, use current balance but don't deduct
         // since it was already deducted when first issued
         balanceForItem = currentBalance;
+        newRunningBalance = currentBalance; // Keep the same balance for subsequent items
       }
 
+      // Update the running balance for this asset
+      assetBalanceMap.set(assetId, newRunningBalance);
+
       const data: TBatchItem = {
-        id: asset._id.toString(),
+        id: assetId,
         reference: stock.reference || "",
         serialNo: stock.serialNo || "",
         qty,
@@ -290,7 +294,13 @@ export default function useTransferService() {
         condition: "transferred",
       };
 
-      console.log(`Batch Item ${index + 1}:`, data);
+      console.log(`Batch Item ${index + 1} (Asset: ${asset.name}):`, {
+        stockCondition: stock.condition,
+        initialBalance: asset.quantity || 0,
+        currentBalance,
+        calculatedBalance: balanceForItem,
+        newRunningBalance,
+      });
 
       items.push(data);
     }
