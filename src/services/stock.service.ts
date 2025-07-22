@@ -218,8 +218,8 @@ export default function useStockService() {
       session.startTransaction();
 
       const assetMap = new Map<string, TAsset>();
-      const stockOperations = [];
 
+      // Process items sequentially to maintain order and proper balance calculations
       for (const item of items) {
         const assetId = item.id.toString();
 
@@ -240,29 +240,25 @@ export default function useStockService() {
           outs = 0;
         }
 
-        // Prepare stock creation operation
-        stockOperations.push(
-          createStock(
-            {
-              createdAt,
-              assetId,
-              reference: item.reference,
-              serialNo: item.serialNo,
-              officeId,
-              officeName,
-              ins,
-              outs,
-              balance: item.balance,
-              itemNo: item.itemNo,
-              initialCondition: item.initialCondition,
-              condition: item.condition,
-            },
-            session,
-          ),
+        // Process each stock creation sequentially to maintain order
+        await createStock(
+          {
+            createdAt,
+            assetId,
+            reference: item.reference,
+            serialNo: item.serialNo,
+            officeId,
+            officeName,
+            ins,
+            outs,
+            balance: item.balance,
+            itemNo: item.itemNo,
+            initialCondition: item.initialCondition,
+            condition: item.condition,
+          },
+          session,
         );
       }
-
-      await Promise.all(stockOperations);
 
       await session.commitTransaction();
       return "Successfully processed stock outs transactions.";
