@@ -82,9 +82,12 @@ export default function useStockService() {
           break;
       }
 
-      if (initialCondition === "good-condition" && condition === "transferred") {
-        if (newBalance < outs)
+      if (condition === "transferred") {
+        // For transferred stocks, use the balance calculated in the transfer logic
+        // This applies to both good-condition and reissued stocks
+        if (initialCondition === "good-condition" && newBalance < outs) {
           throw new BadRequestError(`Insufficient stock for ${asset.name}. Available: ${asset.quantity ?? 0}, Requested: ${outs}`);
+        }
 
         newBalance = balance;
       }
