@@ -162,19 +162,15 @@ export default function useAssetRepository() {
       {
         $lookup: {
           from: "stocks",
-          let: {
-            assetId: "$_id",
-          },
+          let: { assetId: "$_id" },
           pipeline: [
             {
               $match: {
-                itemNo: {
-                  $not: /-/,
+                itemNo: { $not: /-/ },
+                condition: {
+                  $in: ["reissued", "transferred", "returned", "for-disposal", "lost", "stolen", "damaged", "destroyed"],
                 },
-                condition: { $ne: "returned" },
-                $expr: {
-                  $eq: ["$assetId", "$$assetId"],
-                },
+                $expr: { $eq: ["$assetId", "$$assetId"] },
               },
             },
             {
@@ -183,9 +179,7 @@ export default function useAssetRepository() {
                   assetId: "$assetId",
                   itemNo: "$itemNo",
                 },
-                latestCondition: {
-                  $first: "$condition",
-                },
+                latestCondition: { $first: "$condition" },
               },
             },
           ],
@@ -194,20 +188,13 @@ export default function useAssetRepository() {
       },
       {
         $addFields: {
-          totalDeductedStocks: {
-            $size: "$totalDeductedStocks",
-          },
+          totalDeductedStocks: { $size: "$totalDeductedStocks" },
         },
       },
       {
         $addFields: {
           goodCondition: {
-            $subtract: [
-              "$initialQty",
-              {
-                $ifNull: ["$totalDeductedStocks", 0],
-              },
-            ],
+            $subtract: [{ $ifNull: ["$initialQty", 0] }, { $ifNull: ["$totalDeductedStocks", 0] }],
           },
           reissued: { $arrayElemAt: ["$stockConditions.reissued", 0] },
           transferred: { $arrayElemAt: ["$stockConditions.transferred", 0] },
