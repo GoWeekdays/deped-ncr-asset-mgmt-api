@@ -171,9 +171,9 @@ export default function useTransferRepository() {
       {
         $lookup: {
           from: "stocks",
-          localField: "itemStocks.stockId",
-          foreignField: "_id",
+          let: { itemStocks: "$itemStocks" },
           pipeline: [
+            { $match: { $expr: { $in: ["$_id", "$$itemStocks.stockId"] } } },
             {
               $lookup: {
                 from: "assets",
@@ -214,6 +214,8 @@ export default function useTransferRepository() {
                 condition: 1,
               },
             },
+            { $addFields: { originalIndex: { $indexOfArray: ["$$itemStocks.stockId", "$stockId"] } } },
+            { $sort: { originalIndex: 1 } },
           ],
           as: "itemStocks",
         },

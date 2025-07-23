@@ -190,7 +190,7 @@ export default function useTransferService() {
   }
 
   async function updateTransferById(_id: string, value: TTransfer, session?: ClientSession) {
-    const transferReport = await _getTransferById({ _id }); // check
+    const transferReport = await _getTransferById({ _id });
     if (!transferReport) throw new BadRequestError("Transfer not found.");
 
     try {
@@ -243,6 +243,7 @@ export default function useTransferService() {
 
     for (let index = 0; index < transfer.itemStocks.length; index++) {
       const _stock = transfer.itemStocks[index];
+
       const stockId = _stock.stockId;
 
       const stock = await getStockById(stockId.toString());
@@ -260,7 +261,7 @@ export default function useTransferService() {
         currentBalance = assetBalanceMap.get(assetId)!;
       }
 
-      const initialQty = asset.initialQty || (asset.quantity || 0);
+      const initialQty = asset.initialQty || asset.quantity || 0;
       const totalOuts = Math.max(0, initialQty - currentBalance);
       const transferItemNo = totalOuts + 1;
       let itemNo = stock.itemNo;
@@ -293,14 +294,6 @@ export default function useTransferService() {
         initialCondition: stock.condition || "",
         condition: "transferred",
       };
-
-      console.log(`Batch Item ${index + 1} (Asset: ${asset.name}):`, {
-        stockCondition: stock.condition,
-        initialBalance: asset.quantity || 0,
-        currentBalance,
-        calculatedBalance: balanceForItem,
-        newRunningBalance,
-      });
 
       items.push(data);
     }
