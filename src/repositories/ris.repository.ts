@@ -239,6 +239,7 @@ export default function useRISlipRepository() {
                 assetId: "$_id",
                 stockNumber: 1,
                 unitOfMeasurement: 1,
+                name: 1,
                 description: 1,
                 isAvailable: {
                   $cond: {
