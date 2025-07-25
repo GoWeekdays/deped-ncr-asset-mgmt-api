@@ -38,7 +38,7 @@ export type TAsset = {
   modeOfAcquisition?: string; // only for SEP and PPE; values: procurement, donation, transfer
   procurementType?: string; // only for SEP and PPE; values: ps-dbm, bidding, quotation
   supplier?: string; // only for SEP and PPE
-  condition?: string; // only for SEP, PPE; values: good-condition, reissued, transferred, returned, for-disposal, for-repair
+  condition?: string; // only for SEP, PPE; values: good-condition, issued, transferred, returned, for-disposal, for-repair
   status?: string;
   createdAt?: string;
   updatedAt?: string | null;

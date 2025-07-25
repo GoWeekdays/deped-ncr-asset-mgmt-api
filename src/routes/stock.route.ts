@@ -9,8 +9,8 @@ const {
   getStockById,
   getStocksByAssetId,
   getStocksByCondition,
-  getReissuedStocksForLoss,
-  getReissuedStocksForReturn,
+  getIssuedStocksForLoss,
+  getIssuedStocksForReturn,
   getPropertyByOfficeId,
   getPersonnelStockCardById,
 } = useStockController();
@@ -27,7 +27,7 @@ router.get("/property/:officeId", auth, getPropertyByOfficeId);
 router.get("/id/:id", auth, getStockById);
 router.get("/asset/:asset", auth, getStocksByAssetId);
 router.get("/condition/:condition/:asset", auth, getStocksByCondition);
-router.get("/loss/reissued/:issueSlipId", auth, getReissuedStocksForLoss);
-router.get("/return/reissued/:assetId", auth, getReissuedStocksForReturn);
+router.get("/loss/issued/:issueSlipId", auth, getIssuedStocksForLoss);
+router.get("/return/issued/:assetId", auth, getIssuedStocksForReturn);
 
 export default router;

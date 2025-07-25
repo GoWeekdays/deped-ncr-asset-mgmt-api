@@ -15,7 +15,7 @@ const {
   completeStatus,
 } = useMaintenanceController();
 
-const { getReissuedStocksForMaintenance } = useStockController();
+const { getIssuedStocksForMaintenance } = useStockController();
 
 const router = express.Router();
 
@@ -25,7 +25,7 @@ const auth = authMiddleware(accessTokenSecret);
 router.post("/", auth, createMaintenance);
 router.get("/", auth, getMaintenances);
 router.get("/:id", auth, getMaintenanceById);
-router.get("/item-no/:assetId", auth, getReissuedStocksForMaintenance);
+router.get("/item-no/:assetId", auth, getIssuedStocksForMaintenance);
 router.put("/cancelled/:id", auth, cancelStatus);
 router.put("/scheduled/:id", auth, scheduleStatus);
 router.put("/rescheduled/:id", auth, rescheduleStatus);

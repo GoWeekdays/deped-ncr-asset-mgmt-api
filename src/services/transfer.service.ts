@@ -275,7 +275,7 @@ export default function useTransferService() {
         balanceForItem = currentBalance - qty;
         newRunningBalance = balanceForItem; // Update running balance for subsequent items
       } else {
-        // For reissued stocks, use current balance but don't deduct
+        // For issued stocks, use current balance but don't deduct
         // since it was already deducted when first issued
         balanceForItem = currentBalance;
         newRunningBalance = currentBalance; // Keep the same balance for subsequent items

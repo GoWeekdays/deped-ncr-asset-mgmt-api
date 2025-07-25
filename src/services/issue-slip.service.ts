@@ -236,7 +236,7 @@ export default function useIssueSlipService() {
             itemNo: itemNo.toString(),
             remarks,
             initialCondition: "good-condition",
-            condition: "reissued",
+            condition: "issued",
           },
           session,
         );

@@ -185,7 +185,7 @@ export default function useStockRepository() {
 
     const project: TProject = {
       createdAt: "$asset.createdAt",
-      ...(condition === "reissued" && { reference: 1 }),
+      ...(condition === "issued" && { reference: 1 }),
       itemNo: 1,
       name: "$asset.name",
       description: "$asset.description",
@@ -225,7 +225,7 @@ export default function useStockRepository() {
     }
   }
 
-  async function getReissuedStocksForLoss({
+  async function getIssuedStocksForLoss({
     page = 1,
     limit = 10,
     sort = {},
@@ -276,7 +276,7 @@ export default function useStockRepository() {
       { $sort: { createdAt: -1 } },
       { $group: { _id: { assetId: "$assetId", itemNo: "$itemNo" }, latestStock: { $first: "$$ROOT" } } },
       { $replaceRoot: { newRoot: "$latestStock" } },
-      { $match: { condition: { $in: ["reissued"] } } },
+      { $match: { condition: { $in: ["issued"] } } },
       {
         $lookup: {
           from: "issueSlips",
@@ -314,7 +314,7 @@ export default function useStockRepository() {
     }
   }
 
-  async function getReissuedStocksForReturn({
+  async function getIssuedStocksForReturn({
     page = 1,
     limit = 10,
     sort = {},
@@ -364,7 +364,7 @@ export default function useStockRepository() {
       { $sort: { createdAt: -1 } },
       { $group: { _id: { assetId: "$assetId", itemNo: "$itemNo" }, latestStock: { $first: "$$ROOT" } } },
       { $replaceRoot: { newRoot: "$latestStock" } },
-      { $match: { condition: { $in: ["reissued"] } } },
+      { $match: { condition: { $in: ["issued"] } } },
       {
         $lookup: {
           from: "issueSlips",
@@ -483,7 +483,7 @@ export default function useStockRepository() {
     }
   }
 
-  async function getReissuedStocksForMaintenance({
+  async function getIssuedStocksForMaintenance({
     page = 1,
     limit = 10,
     sort = {},
@@ -534,7 +534,7 @@ export default function useStockRepository() {
       { $sort: { createdAt: -1 } },
       { $group: { _id: { assetId: "$assetId", itemNo: "$itemNo" }, latestStock: { $first: "$$ROOT" } } },
       { $replaceRoot: { newRoot: "$latestStock" } },
-      { $match: { condition: { $in: ["reissued"] } } },
+      { $match: { condition: { $in: ["issued"] } } },
       {
         $lookup: {
           from: "maintenances",
@@ -700,7 +700,7 @@ export default function useStockRepository() {
         },
       },
       { $replaceRoot: { newRoot: "$latestStock" } },
-      { $match: { condition: "reissued" } },
+      { $match: { condition: "issued" } },
       { $match: { $expr: { $and: [{ $ne: ["$outs", null] }, { $gt: ["$outs", 0] }] } } },
       {
         $lookup: {
@@ -903,7 +903,7 @@ export default function useStockRepository() {
       { $sort: { createdAt: -1 } },
       { $group: { _id: { assetId: "$assetId", itemNo: "$itemNo" }, latestStock: { $first: "$$ROOT" } } },
       { $replaceRoot: { newRoot: "$latestStock" } },
-      { $match: { condition: "reissued" } },
+      { $match: { condition: "issued" } },
       { $match: { $expr: { $and: [{ $ne: ["$outs", null] }, { $gt: ["$outs", 0] }] } } },
       {
         $lookup: {
@@ -988,10 +988,10 @@ export default function useStockRepository() {
     getStocks,
     getStocksByAssetId,
     getStocksByCondition,
-    getReissuedStocksForLoss,
-    getReissuedStocksForReturn,
+    getIssuedStocksForLoss,
+    getIssuedStocksForReturn,
     getStocksByWasteCondition,
-    getReissuedStocksForMaintenance,
+    getIssuedStocksForMaintenance,
     getStockById,
     getPropertyByOfficeId,
     updateStockAssetNameByAssetId,

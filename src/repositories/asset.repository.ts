@@ -89,7 +89,7 @@ export default function useAssetRepository() {
       quantity?: number;
       unitOfMeasurement: number;
       goodCondition?: number;
-      reissued?: number;
+      issued?: number;
       transferred?: number;
       returned?: number;
       forDisposal?: number;
@@ -115,7 +115,7 @@ export default function useAssetRepository() {
       if (["SEP", "PPE"].includes(type)) {
         project.initialQty = 1;
         project.goodCondition = 1;
-        project.reissued = 1;
+        project.issued = 1;
         project.transferred = 1;
         project.returned = 1;
         project.forDisposal = 1;
@@ -145,7 +145,7 @@ export default function useAssetRepository() {
               $group: {
                 _id: "$_id.assetId",
                 goodCondition: { $sum: { $cond: [{ $eq: ["$latestCondition", "good-condition"] }, 1, 0] } },
-                reissued: { $sum: { $cond: [{ $eq: ["$latestCondition", "reissued"] }, 1, 0] } },
+                issued: { $sum: { $cond: [{ $eq: ["$latestCondition", "issued"] }, 1, 0] } },
                 transferred: { $sum: { $cond: [{ $eq: ["$latestCondition", "transferred"] }, 1, 0] } },
                 returned: { $sum: { $cond: [{ $eq: ["$latestCondition", "returned"] }, 1, 0] } },
                 forDisposal: { $sum: { $cond: [{ $eq: ["$latestCondition", "for-disposal"] }, 1, 0] } },
@@ -168,7 +168,7 @@ export default function useAssetRepository() {
               $match: {
                 itemNo: { $not: /-/ },
                 condition: {
-                  $in: ["reissued", "transferred", "returned", "for-disposal", "lost", "stolen", "damaged", "destroyed"],
+                  $in: ["issued", "transferred", "returned", "for-disposal", "lost", "stolen", "damaged", "destroyed"],
                 },
                 $expr: { $eq: ["$assetId", "$$assetId"] },
               },
@@ -196,7 +196,7 @@ export default function useAssetRepository() {
           goodCondition: {
             $subtract: [{ $ifNull: ["$initialQty", 0] }, { $ifNull: ["$totalDeductedStocks", 0] }],
           },
-          reissued: { $arrayElemAt: ["$stockConditions.reissued", 0] },
+          issued: { $arrayElemAt: ["$stockConditions.issued", 0] },
           transferred: { $arrayElemAt: ["$stockConditions.transferred", 0] },
           returned: { $arrayElemAt: ["$stockConditions.returned", 0] },
           forDisposal: { $arrayElemAt: ["$stockConditions.forDisposal", 0] },
@@ -239,7 +239,7 @@ export default function useAssetRepository() {
       name: number;
       description: number;
       goodCondition?: number;
-      reissued?: number;
+      issued?: number;
       returned?: number;
     };
 
@@ -251,7 +251,7 @@ export default function useAssetRepository() {
 
     if (["admin", "admin-head"].includes(role)) {
       project.goodCondition = 1;
-      project.reissued = 1;
+      project.issued = 1;
       project.returned = 1;
     }
 
@@ -276,7 +276,7 @@ export default function useAssetRepository() {
             {
               $match: {
                 $expr: { $eq: ["$assetId", "$$assetId"] },
-                condition: { $in: ["reissued", "transferred", "returned", "for-disposal", "lost", "stolen", "damaged", "destroyed"] },
+                condition: { $in: ["issued", "transferred", "returned", "for-disposal", "lost", "stolen", "damaged", "destroyed"] },
               },
             },
             {
@@ -289,7 +289,7 @@ export default function useAssetRepository() {
             {
               $group: {
                 _id: "$_id.assetId",
-                reissuedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "reissued"] }, "$totalOuts", 0] } },
+                reissuedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "issued"] }, "$totalOuts", 0] } },
                 transferredTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "transferred"] }, "$totalOuts", 0] } },
                 returnedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "returned"] }, "$totalIns", 0] } },
                 forDisposalTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "for-disposal"] }, "$totalOuts", 0] } },
@@ -315,10 +315,10 @@ export default function useAssetRepository() {
               },
             },
           ],
-          as: "reissued",
+          as: "issued",
         },
       },
-      { $unwind: { path: "$reissued", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$issued", preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
           from: "stocks",
@@ -334,7 +334,7 @@ export default function useAssetRepository() {
       {
         $set: {
           goodCondition: { $subtract: ["$quantity", { $size: "$goodCondition" }] },
-          reissued: "$reissued.finalTotalOuts",
+          issued: "$issued.finalTotalOuts",
           returned: "$returned.totalIns",
         },
       },
@@ -390,7 +390,7 @@ export default function useAssetRepository() {
       stockNumber: number;
       name: number;
       description: number;
-      reissued?: number;
+      issued?: number;
     };
 
     const project: TProject = {
@@ -400,7 +400,7 @@ export default function useAssetRepository() {
     };
 
     if (["admin", "admin-head"].includes(role)) {
-      project.reissued = 1;
+      project.issued = 1;
     }
 
     const pipeLine = [
@@ -413,7 +413,7 @@ export default function useAssetRepository() {
             {
               $match: {
                 $expr: { $eq: ["$assetId", "$$assetId"] },
-                condition: { $in: ["reissued", "transferred", "returned", "for-disposal", "lost", "stolen", "damaged", "destroyed"] },
+                condition: { $in: ["issued", "transferred", "returned", "for-disposal", "lost", "stolen", "damaged", "destroyed"] },
               },
             },
             {
@@ -427,7 +427,7 @@ export default function useAssetRepository() {
               $group: {
                 _id: "$_id.assetId",
                 reference: { $first: { $getField: { field: "reference", input: "$_id" } } },
-                reissuedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "reissued"] }, "$totalOuts", 0] } },
+                reissuedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "issued"] }, "$totalOuts", 0] } },
                 transferredTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "transferred"] }, "$totalOuts", 0] } },
                 returnedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "returned"] }, "$totalIns", 0] } },
                 forDisposalTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "for-disposal"] }, "$totalOuts", 0] } },
@@ -453,17 +453,17 @@ export default function useAssetRepository() {
               },
             },
           ],
-          as: "reissued",
+          as: "issued",
         },
       },
-      { $unwind: { path: "$reissued", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$issued", preserveNullAndEmptyArrays: true } },
       {
         $set: {
-          reissued: "$reissued.finalTotalOuts",
-          reference: { $cond: { if: { $gt: ["$reissued.finalTotalOuts", 0] }, then: "$reissued.reference", else: "$$REMOVE" } },
+          issued: "$issued.finalTotalOuts",
+          reference: { $cond: { if: { $gt: ["$issued.finalTotalOuts", 0] }, then: "$issued.reference", else: "$$REMOVE" } },
         },
       },
-      { $match: { $expr: { $and: [{ $ne: ["$reissued", null] }, { $gt: ["$reissued", 0] }] } } },
+      { $match: { $expr: { $and: [{ $ne: ["$issued", null] }, { $gt: ["$issued", 0] }] } } },
       ...(role === "personnel" && role
         ? [
             {
@@ -509,7 +509,7 @@ export default function useAssetRepository() {
       name: number;
       description: number;
       goodCondition?: number;
-      reissued?: number;
+      issued?: number;
       returned?: number;
     };
 
@@ -521,7 +521,7 @@ export default function useAssetRepository() {
 
     if (["admin", "admin-head"].includes(role)) {
       project.goodCondition = 1;
-      project.reissued = 1;
+      project.issued = 1;
       project.returned = 1;
     }
 
@@ -546,14 +546,14 @@ export default function useAssetRepository() {
             {
               $match: {
                 $expr: { $eq: ["$assetId", "$$assetId"] },
-                condition: { $in: ["reissued", "transferred", "returned", "for-disposal", "lost", "stolen", "damaged", "destroyed"] },
+                condition: { $in: ["issued", "transferred", "returned", "for-disposal", "lost", "stolen", "damaged", "destroyed"] },
               },
             },
             { $group: { _id: { assetId: "$assetId", condition: "$condition" }, totalOuts: { $sum: "$outs" }, totalIns: { $sum: "$ins" } } },
             {
               $group: {
                 _id: "$_id.assetId",
-                reissuedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "reissued"] }, "$totalOuts", 0] } },
+                reissuedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "issued"] }, "$totalOuts", 0] } },
                 transferredTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "transferred"] }, "$totalOuts", 0] } },
                 returnedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "returned"] }, "$totalIns", 0] } },
                 forDisposalTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "for-disposal"] }, "$totalOuts", 0] } },
@@ -579,10 +579,10 @@ export default function useAssetRepository() {
               },
             },
           ],
-          as: "reissued",
+          as: "issued",
         },
       },
-      { $unwind: { path: "$reissued", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$issued", preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
           from: "stocks",
@@ -598,7 +598,7 @@ export default function useAssetRepository() {
       {
         $set: {
           goodCondition: { $subtract: ["$quantity", { $size: "$goodCondition" }] },
-          reissued: "$reissued.finalTotalOuts",
+          issued: "$issued.finalTotalOuts",
           returned: "$returned.totalIns",
         },
       },
@@ -641,7 +641,7 @@ export default function useAssetRepository() {
       stockNumber: number;
       name: number;
       description: number;
-      reissued?: number;
+      issued?: number;
     };
 
     const project: TProject = {
@@ -651,7 +651,7 @@ export default function useAssetRepository() {
     };
 
     if (role === "personnel") {
-      project.reissued = 1;
+      project.issued = 1;
     }
 
     const pipeLine: any[] = [
@@ -664,7 +664,7 @@ export default function useAssetRepository() {
           as: "itemStocks",
           pipeline: [
             { $match: { $expr: { $eq: ["$assetId", "$$assetId"] } } },
-            { $match: { condition: "reissued" } },
+            { $match: { condition: "issued" } },
             {
               $lookup: {
                 from: "issueSlips",
@@ -706,7 +706,7 @@ export default function useAssetRepository() {
               $group: {
                 _id: "$_id.assetId",
                 goodCondition: { $sum: { $cond: [{ $eq: ["$latestCondition", "good-condition"] }, 1, 0] } },
-                reissued: { $sum: { $cond: [{ $eq: ["$latestCondition", "reissued"] }, 1, 0] } },
+                issued: { $sum: { $cond: [{ $eq: ["$latestCondition", "issued"] }, 1, 0] } },
                 transferred: { $sum: { $cond: [{ $eq: ["$latestCondition", "transferred"] }, 1, 0] } },
                 returned: { $sum: { $cond: [{ $eq: ["$latestCondition", "returned"] }, 1, 0] } },
                 forDisposal: { $sum: { $cond: [{ $eq: ["$latestCondition", "for-disposal"] }, 1, 0] } },
@@ -720,8 +720,8 @@ export default function useAssetRepository() {
           as: "stockConditions",
         },
       },
-      { $addFields: { reissued: { $ifNull: [{ $arrayElemAt: ["$stockConditions.reissued", 0] }, 0] } } },
-      { $match: { $expr: { $and: [{ $ne: ["$reissued", null] }, { $gt: ["$reissued", 0] }] } } },
+      { $addFields: { issued: { $ifNull: [{ $arrayElemAt: ["$stockConditions.issued", 0] }, 0] } } },
+      { $match: { $expr: { $and: [{ $ne: ["$issued", null] }, { $gt: ["$issued", 0] }] } } },
     ];
 
     const pipelineForItems = [...pipeLine, { $project: project }, { $sort: sort }];
@@ -1098,8 +1098,8 @@ export default function useAssetRepository() {
 
       if (!condition) {
         project.quantity = 1;
-      } else if (condition === "reissued") {
-        project.quantity = "$reissued";
+      } else if (condition === "issued") {
+        project.quantity = "$issued";
       } else if (condition === "returned") {
         project.quantity = "$returned";
       } else if (condition === "good-condition") {
@@ -1127,14 +1127,14 @@ export default function useAssetRepository() {
               {
                 $match: {
                   $expr: { $eq: ["$assetId", "$$assetId"] },
-                  condition: { $in: ["reissued", "transferred", "returned", "for-disposal", "lost", "stolen", "damaged", "destroyed"] },
+                  condition: { $in: ["issued", "transferred", "returned", "for-disposal", "lost", "stolen", "damaged", "destroyed"] },
                 },
               },
               { $group: { _id: { assetId: "$assetId", condition: "$condition" }, totalOuts: { $sum: "$outs" }, totalIns: { $sum: "$ins" } } },
               {
                 $group: {
                   _id: "$_id.assetId",
-                  reissuedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "reissued"] }, "$totalOuts", 0] } },
+                  reissuedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "issued"] }, "$totalOuts", 0] } },
                   transferredTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "transferred"] }, "$totalOuts", 0] } },
                   returnedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "returned"] }, "$totalIns", 0] } },
                   forDisposalTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "for-disposal"] }, "$totalOuts", 0] } },
@@ -1160,10 +1160,10 @@ export default function useAssetRepository() {
                 },
               },
             ],
-            as: "reissued",
+            as: "issued",
           },
         },
-        { $unwind: { path: "$reissued", preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: "$issued", preserveNullAndEmptyArrays: true } },
         {
           $lookup: {
             from: "stocks",
@@ -1185,8 +1185,8 @@ export default function useAssetRepository() {
                 else: { $subtract: ["$quantity", { $size: "$goodCondition" }] },
               },
             },
-            reissued: {
-              $cond: { if: { $eq: ["$reissued.finalTotalOuts", 0] }, then: "$$REMOVE", else: "$reissued.finalTotalOuts" },
+            issued: {
+              $cond: { if: { $eq: ["$issued.finalTotalOuts", 0] }, then: "$$REMOVE", else: "$issued.finalTotalOuts" },
             },
             returned: {
               $cond: { if: { $eq: ["$returned.totalIns", 0] }, then: "$$REMOVE", else: "$returned.totalIns" },

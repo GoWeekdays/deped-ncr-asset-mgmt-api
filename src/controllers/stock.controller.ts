@@ -11,16 +11,16 @@ export default function useStockController() {
     getStockById: _getStockById,
     getStocksByAssetId: _getStocksByAssetId,
     getStocksByCondition: _getStocksByCondition,
-    getReissuedStocksForLoss: _getReissuedStocksForLoss,
-    getReissuedStocksForReturn: _getReissuedStocksForReturn,
+    getIssuedStocksForLoss: _getIssuedStocksForLoss,
+    getIssuedStocksForReturn: _getIssuedStocksForReturn,
     getStocksByWasteCondition: _getStocksByWasteCondition,
-    getReissuedStocksForMaintenance: _getReissuedStocksForMaintenance,
+    getIssuedStocksForMaintenance: _getIssuedStocksForMaintenance,
     getPropertyByOfficeId: _getPropertyByOfficeId,
     getPersonnelStockCardById: _getPersonnelStockCardById,
   } = useStockService();
 
   const acceptedTypes = ["consumable", "SEP", "PPE"];
-  const acceptedTransferConditions = ["good-condition", "reissued", "returned"];
+  const acceptedTransferConditions = ["good-condition", "issued", "returned"];
 
   async function createStock(req: Request, res: Response, next: NextFunction) {
     const schema = Joi.object({
@@ -167,7 +167,7 @@ export default function useStockController() {
     }
   }
 
-  async function getReissuedStocksForLoss(req: Request, res: Response, next: NextFunction) {
+  async function getIssuedStocksForLoss(req: Request, res: Response, next: NextFunction) {
     const page = req.query.page ? Number(req.query.page) : 1;
     const limit = Number(req.query.limit) || 10;
     const sort = req.query.sort || {};
@@ -189,7 +189,7 @@ export default function useStockController() {
     }
 
     try {
-      const stocks = await _getReissuedStocksForLoss({ page, limit, sort, search, issueSlipId });
+      const stocks = await _getIssuedStocksForLoss({ page, limit, sort, search, issueSlipId });
       return res.json(stocks);
     } catch (error) {
       logger.log({ level: "error", message: `${error}` });
@@ -197,7 +197,7 @@ export default function useStockController() {
     }
   }
 
-  async function getReissuedStocksForReturn(req: Request, res: Response, next: NextFunction) {
+  async function getIssuedStocksForReturn(req: Request, res: Response, next: NextFunction) {
     const page = req.query.page ? Number(req.query.page) : 1;
     const limit = Number(req.query.limit) || 10;
     const sort = req.query.sort || {};
@@ -219,7 +219,7 @@ export default function useStockController() {
     }
 
     try {
-      const stocks = await _getReissuedStocksForReturn({ page, limit, sort, search, assetId });
+      const stocks = await _getIssuedStocksForReturn({ page, limit, sort, search, assetId });
       return res.json(stocks);
     } catch (error) {
       logger.log({ level: "error", message: `${error}` });
@@ -261,7 +261,7 @@ export default function useStockController() {
     }
   }
 
-  async function getReissuedStocksForMaintenance(req: Request, res: Response, next: NextFunction) {
+  async function getIssuedStocksForMaintenance(req: Request, res: Response, next: NextFunction) {
     const page = req.query.page ? Number(req.query.page) : 1;
     const limit = Number(req.query.limit) || 10;
     const sort = req.query.sort || {};
@@ -285,7 +285,7 @@ export default function useStockController() {
     }
 
     try {
-      const stocks = await _getReissuedStocksForMaintenance({ page, limit, sort, search, assetId, role: _user.role, userId: _user.user });
+      const stocks = await _getIssuedStocksForMaintenance({ page, limit, sort, search, assetId, role: _user.role, userId: _user.user });
       return res.json(stocks);
     } catch (error) {
       logger.log({ level: "error", message: `${error}` });
@@ -355,10 +355,10 @@ export default function useStockController() {
     getStockById,
     getStocksByAssetId,
     getStocksByCondition,
-    getReissuedStocksForLoss,
-    getReissuedStocksForReturn,
+    getIssuedStocksForLoss,
+    getIssuedStocksForReturn,
     getStocksByWasteCondition,
-    getReissuedStocksForMaintenance,
+    getIssuedStocksForMaintenance,
     getPropertyByOfficeId,
     getPersonnelStockCardById,
   };
