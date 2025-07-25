@@ -22,7 +22,7 @@ export default function useDashboardRepo() {
 
       const totalAssetsInUsePipeline = await stocksCollection
         .aggregate([
-          { $match: { condition: "reissued" } },
+          { $match: { condition: "issued" } },
           {
             $lookup: {
               from: "stocks",
@@ -122,14 +122,14 @@ export default function useDashboardRepo() {
               {
                 $match: {
                   $expr: { $eq: ["$assetId", "$$assetId"] },
-                  condition: { $in: ["reissued", "transferred", "returned", "for-disposal", "lost", "stolen", "damaged", "destroyed"] },
+                  condition: { $in: ["issued", "transferred", "returned", "for-disposal", "lost", "stolen", "damaged", "destroyed"] },
                 },
               },
               { $group: { _id: { assetId: "$assetId", condition: "$condition" }, totalOuts: { $sum: "$outs" }, totalIns: { $sum: "$ins" } } },
               {
                 $group: {
                   _id: "$_id.assetId",
-                  reissuedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "reissued"] }, "$totalOuts", 0] } },
+                  reissuedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "issued"] }, "$totalOuts", 0] } },
                   transferredTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "transferred"] }, "$totalOuts", 0] } },
                   returnedTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "returned"] }, "$totalIns", 0] } },
                   forDisposalTotal: { $sum: { $cond: [{ $eq: ["$_id.condition", "for-disposal"] }, "$totalOuts", 0] } },
@@ -155,10 +155,10 @@ export default function useDashboardRepo() {
                 },
               },
             ],
-            as: "reissued",
+            as: "issued",
           },
         },
-        { $unwind: { path: "$reissued", preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: "$issued", preserveNullAndEmptyArrays: true } },
         {
           $lookup: {
             from: "stocks",
@@ -198,7 +198,7 @@ export default function useDashboardRepo() {
         {
           $set: {
             goodCondition: { $subtract: ["$quantity", { $size: "$goodCondition" }] },
-            reissued: "$reissued.finalTotalOuts",
+            issued: "$issued.finalTotalOuts",
             returned: "$returned.totalIns",
             forDisposal: "$forDisposal.totalOuts",
             transferred: "$transferred.totalOuts",
@@ -207,7 +207,7 @@ export default function useDashboardRepo() {
         {
           $project: {
             goodCondition: 1,
-            reissued: 1,
+            issued: 1,
             returned: 1,
             forDisposal: 1,
             transferred: 1,
@@ -222,7 +222,7 @@ export default function useDashboardRepo() {
       function combineQuantities(sepConditions: any, ppeConditions: any) {
         const sep = {
           goodCondition: 0,
-          reissued: 0,
+          issued: 0,
           returned: 0,
           forDisposal: 0,
           transferred: 0,
@@ -230,7 +230,7 @@ export default function useDashboardRepo() {
 
         const ppe = {
           goodCondition: 0,
-          reissued: 0,
+          issued: 0,
           returned: 0,
           forDisposal: 0,
           transferred: 0,
@@ -239,7 +239,7 @@ export default function useDashboardRepo() {
         // Combine sepConditions
         sepConditions.forEach((sepCondition: any) => {
           sep.goodCondition += sepCondition.goodCondition || 0;
-          sep.reissued += sepCondition.reissued || 0;
+          sep.issued += sepCondition.issued || 0;
           sep.returned += sepCondition.returned || 0;
           sep.forDisposal += sepCondition.forDisposal || 0;
           sep.transferred += sepCondition.transferred || 0;
@@ -248,7 +248,7 @@ export default function useDashboardRepo() {
         // Combine ppeConditions
         ppeConditions.forEach((ppeCondition: any) => {
           ppe.goodCondition += ppeCondition.goodCondition || 0;
-          ppe.reissued += ppeCondition.reissued || 0;
+          ppe.issued += ppeCondition.issued || 0;
           ppe.returned += ppeCondition.returned || 0;
           ppe.forDisposal += ppeCondition.forDisposal || 0;
           ppe.transferred += ppeCondition.transferred || 0;

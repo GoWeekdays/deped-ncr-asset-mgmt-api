@@ -202,7 +202,7 @@ export default function useTransferRepository() {
                 itemNo: 1,
                 reference: {
                   $cond: {
-                    if: { $eq: ["$condition", "reissued"] },
+                    if: { $eq: ["$condition", "issued"] },
                     then: "$reference",
                     else: "$$REMOVE",
                   },

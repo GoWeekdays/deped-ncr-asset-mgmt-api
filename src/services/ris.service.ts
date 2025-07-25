@@ -316,7 +316,7 @@ export default function useRISlipService() {
               id: item.assetId,
               reference: ris.risNo,
               qty: item.issueQty,
-              condition: "reissued",
+              condition: "issued",
             };
           }),
       );

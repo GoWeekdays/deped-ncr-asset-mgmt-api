@@ -16,7 +16,7 @@ export type TStock = {
   itemNo?: string; // only for SEP, PPE
   remarks?: string; // only for SEP, PPE
   initialCondition?: string;
-  condition?: string; // only for SEP, PPE; values: good-condition, reissued, transferred, returned, for-disposal, for-repair
+  condition?: string; // only for SEP, PPE; values: good-condition, issued, transferred, returned, for-disposal, for-repair
   createdAt?: string;
 };
 

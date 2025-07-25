@@ -24,7 +24,7 @@ export default function useAssetController() {
   } = useAssetService();
 
   const acceptedTypes = ["consumable", "SEP", "PPE"];
-  const acceptedConditions = ["good-condition", "reissued", "transfer", "returned", "for-disposal", "for-repair"];
+  const acceptedConditions = ["good-condition", "issued", "transfer", "returned", "for-disposal", "for-repair"];
   const acceptedModeOfAcquisition = ["procurement", "donation", "transfer"];
   const acceptedProcurementTypes = ["ps-dbm", "bidding", "quotation"];
 
@@ -427,7 +427,7 @@ export default function useAssetController() {
       const schema = Joi.object({
         type: Joi.string().valid("SEP", "PPE").required(),
         search: Joi.string().optional().allow(null, ""),
-        condition: Joi.string().valid("good-condition", "reissued", "returned").optional().allow(null, ""),
+        condition: Joi.string().valid("good-condition", "issued", "returned").optional().allow(null, ""),
       });
 
       const { error } = schema.validate({ type, search, condition });

@@ -14,10 +14,10 @@ export default function useStockService() {
     getStockById: _getStockById,
     getStocksByAssetId: _getStocksByAssetId,
     getStocksByCondition: _getStocksByCondition,
-    getReissuedStocksForLoss: _getReissuedStocksForLoss,
-    getReissuedStocksForReturn: _getReissuedStocksForReturn,
+    getIssuedStocksForLoss: _getIssuedStocksForLoss,
+    getIssuedStocksForReturn: _getIssuedStocksForReturn,
     getStocksByWasteCondition: _getStocksByWasteCondition,
-    getReissuedStocksForMaintenance: _getReissuedStocksForMaintenance,
+    getIssuedStocksForMaintenance: _getIssuedStocksForMaintenance,
     getPropertyByOfficeId: _getPropertyByOfficeId,
     getPersonnelStockCardById: _getPersonnelStockCardById,
   } = useStockRepository();
@@ -77,14 +77,14 @@ export default function useStockService() {
         case "returned":
           newBalance = newBalance + ins;
           break;
-        case "reissued":
+        case "issued":
           newBalance = newBalance - outs;
           break;
       }
 
       if (condition === "transferred") {
         // For transferred stocks, use the balance calculated in the transfer logic
-        // This applies to both good-condition and reissued stocks
+        // This applies to both good-condition and issued stocks
         if (initialCondition === "good-condition" && newBalance < outs) {
           throw new BadRequestError(`Insufficient stock for ${asset.name}. Available: ${asset.quantity ?? 0}, Requested: ${outs}`);
         }
@@ -308,18 +308,18 @@ export default function useStockService() {
     }
   }
 
-  async function getReissuedStocksForLoss({ page = 1, limit = 10, sort = {}, search = "", issueSlipId = "" } = {}) {
+  async function getIssuedStocksForLoss({ page = 1, limit = 10, sort = {}, search = "", issueSlipId = "" } = {}) {
     try {
-      return await _getReissuedStocksForLoss({ page, limit, sort, search, issueSlipId });
+      return await _getIssuedStocksForLoss({ page, limit, sort, search, issueSlipId });
     } catch (error) {
       logger.log({ level: "error", message: `${error}` });
       throw error;
     }
   }
 
-  async function getReissuedStocksForReturn({ page = 1, limit = 10, sort = {}, search = "", assetId = "" } = {}) {
+  async function getIssuedStocksForReturn({ page = 1, limit = 10, sort = {}, search = "", assetId = "" } = {}) {
     try {
-      return await _getReissuedStocksForReturn({ page, limit, sort, search, assetId });
+      return await _getIssuedStocksForReturn({ page, limit, sort, search, assetId });
     } catch (error) {
       logger.log({ level: "error", message: `${error}` });
       throw error;
@@ -334,9 +334,9 @@ export default function useStockService() {
     }
   }
 
-  async function getReissuedStocksForMaintenance({ page = 1, limit = 10, sort = {}, search = "", assetId = "", role = "", userId = "" } = {}) {
+  async function getIssuedStocksForMaintenance({ page = 1, limit = 10, sort = {}, search = "", assetId = "", role = "", userId = "" } = {}) {
     try {
-      return await _getReissuedStocksForMaintenance({ page, limit, sort, search, assetId, role, userId });
+      return await _getIssuedStocksForMaintenance({ page, limit, sort, search, assetId, role, userId });
     } catch (error) {
       logger.log({ level: "error", message: `${error}` });
       throw error;
@@ -388,10 +388,10 @@ export default function useStockService() {
     getStockById,
     getStocksByAssetId,
     getStocksByCondition,
-    getReissuedStocksForLoss,
-    getReissuedStocksForReturn,
+    getIssuedStocksForLoss,
+    getIssuedStocksForReturn,
     getStocksByWasteCondition,
-    getReissuedStocksForMaintenance,
+    getIssuedStocksForMaintenance,
     getPropertyByOfficeId,
     getPersonnelStockCardById,
   };
