@@ -244,6 +244,7 @@ export default function useLossRepository() {
       "itemStocks.stockId": 1,
       "itemStocks.itemNo": 1,
       "itemStocks.stockNumber": 1,
+      "itemStocks.name": 1,
       "itemStocks.description": 1,
       "itemStocks.cost": 1,
     };
@@ -273,6 +274,7 @@ export default function useLossRepository() {
                         {
                           $project: {
                             stockNumber: 1,
+                            name: 1,
                             description: 1,
                             cost: 1,
                           },
@@ -361,6 +363,7 @@ export default function useLossRepository() {
                       issuedAt: "$createdAt",
                       issueSlipNo: 1,
                       stockNumber: "$asset.stockNumber",
+                      name: "$asset.name",
                       description: "$asset.description",
                       cost: "$asset.cost",
                     },
@@ -382,6 +385,7 @@ export default function useLossRepository() {
                 issuedAt: "$issueSlip.issuedAt",
                 issueSlipNo: "$issueSlip.issueSlipNo",
                 stockNumber: "$issueSlip.stockNumber",
+                name: "$issueSlip.name",
                 description: "$issueSlip.description",
                 cost: "$issueSlip.cost",
               },

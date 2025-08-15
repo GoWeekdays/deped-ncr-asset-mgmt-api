@@ -744,6 +744,7 @@ export default function useStockRepository() {
         $group: {
           _id: { assetId: "$asset._id", reference: "$reference" },
           name: { $first: "$asset.name" },
+          description: { $first: "$asset.description" },
           quantity: { $sum: "$outs" },
           issuedAt: { $first: "$issueSlip.receivedAt" },
           personnel: { $first: "$personnel.name" },
@@ -754,6 +755,7 @@ export default function useStockRepository() {
         $project: {
           _id: 0,
           name: 1,
+          description: 1,
           quantity: 1,
           issuedAt: 1,
           reference: "$_id.reference",
@@ -919,6 +921,7 @@ export default function useStockRepository() {
         $group: {
           _id: "$asset._id",
           name: { $first: "$asset.name" },
+          description: { $first: "$asset.description" },
           type: { $first: "$asset.type" },
           condition: { $first: "$condition" },
           totalQuantity: { $sum: "$outs" },
@@ -931,6 +934,7 @@ export default function useStockRepository() {
           _id: 0,
           assetId: "$_id",
           name: 1,
+          description: 1,
           type: 1,
           condition: 1,
           quantity: "$totalQuantity",
