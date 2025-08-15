@@ -328,6 +328,7 @@ export default function useReturnRepository() {
               $project: {
                 _id: 0,
                 stockId: "$_id",
+                name: "$asset.name",
                 description: "$asset.description",
                 reference: 1,
                 endUser: "$endUser.name",

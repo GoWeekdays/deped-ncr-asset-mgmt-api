@@ -185,6 +185,7 @@ export default function useTransferRepository() {
                     $project: {
                       stockNumber: 1,
                       description: 1,
+                      name: 1,
                       unitOfMeasurement: 1,
                       cost: 1,
                       createdAt: 1,
@@ -209,6 +210,7 @@ export default function useTransferRepository() {
                 },
                 stockNumber: "$asset.stockNumber",
                 description: "$asset.description",
+                name: "$asset.name",
                 unitOfMeasurement: "$asset.unitOfMeasurement",
                 cost: "$asset.cost",
                 condition: 1,

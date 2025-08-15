@@ -487,6 +487,7 @@ export default function useRISlipRepository() {
                 unitOfMeasurement: 1,
                 issueQty: "$$issueQty",
                 cost: { $ifNull: ["$cost", 0] },
+                description: 1,
               },
             },
           ],
