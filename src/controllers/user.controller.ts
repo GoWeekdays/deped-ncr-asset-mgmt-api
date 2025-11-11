@@ -69,7 +69,7 @@ export function useUserController() {
 
     const schema = Joi.object({
       page: Joi.number().integer().min(1).optional(),
-      limit: Joi.number().min(10).max(50).optional(),
+      limit: Joi.number().min(10).max(300).optional(),
       sort: Joi.object().optional(),
       search: Joi.string().allow("").optional(),
     });
@@ -98,7 +98,7 @@ export function useUserController() {
 
     const schema = Joi.object({
       page: Joi.number().integer().min(1).optional(),
-      limit: Joi.number().min(10).max(50).optional(),
+      limit: Joi.number().min(10).max(300).optional(),
       sort: Joi.object().optional(),
       search: Joi.string().allow("").optional(),
       type: Joi.string().required(),
